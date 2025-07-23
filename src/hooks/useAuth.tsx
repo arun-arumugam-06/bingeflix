@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+
+interface User {
+  id: string;
+  email: string;
+}
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,106 +30,135 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionInvalid, setSessionInvalid] = useState(false);
+
+  // Helper to get token
+  const getToken = () => localStorage.getItem('token');
+
+  // Fetch user profile from backend
+  const fetchProfile = async () => {
+    setLoading(true);
+    const token = getToken();
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user || null);
+        setSessionInvalid(false);
+      } else {
+        // Do not sign out automatically, just set sessionInvalid
+        setSessionInvalid(true);
+        toast({
+          title: 'Session expired',
+          description: 'Please sign in again.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      setSessionInvalid(true);
+      toast({
+        title: 'Session error',
+        description: 'Please sign in again.',
+        variant: 'destructive',
+      });
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    fetchProfile();
+    // eslint-disable-next-line
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast({
+          title: 'Sign Up Failed',
+          description: data.error || 'Unknown error',
+          variant: 'destructive',
+        });
+        return { error: data.error };
       }
-    });
-
-    if (error) {
       toast({
-        title: "Sign Up Failed",
+        title: 'Check your email',
+        description: "We've sent you a confirmation link to complete your registration.",
+      });
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: 'Sign Up Failed',
         description: error.message,
-        variant: "destructive"
+        variant: 'destructive',
       });
-    } else {
-      toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link to complete your registration."
-      });
+      return { error };
     }
-
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast({
+          title: 'Sign In Failed',
+          description: data.error || 'Unknown error',
+          variant: 'destructive',
+        });
+        return { error: data.error };
+      }
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
       toast({
-        title: "Sign In Failed",
+        title: 'Welcome back!',
+        description: "You've successfully signed in.",
+      });
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: 'Sign In Failed',
         description: error.message,
-        variant: "destructive"
+        variant: 'destructive',
       });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in."
-      });
+      return { error };
     }
-
-    return { error };
   };
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Sign Out Failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out."
-      });
-    }
+  const signOut = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    toast({
+      title: 'Signed out',
+      description: "You've been successfully signed out.",
+    });
   };
 
   const value = {
     user,
-    session,
     loading,
     signUp,
     signIn,
-    signOut
+    signOut,
+    sessionInvalid,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

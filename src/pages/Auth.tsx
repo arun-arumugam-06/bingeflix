@@ -9,11 +9,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Play, Star, Shield, Download } from 'lucide-react';
 
+const validateEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 const Auth = () => {
   const { user, loading, signUp, signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
 
   if (loading) {
     return (
@@ -29,13 +37,51 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    if (!validateEmail(email)) {
+      setFormError('Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      setFormError('Password must be at least 6 characters.');
+      return;
+    }
+    if (!name.trim()) {
+      setFormError('Please enter your name.');
+      return;
+    }
+    if (!age || isNaN(Number(age)) || Number(age) < 1) {
+      setFormError('Please enter a valid age.');
+      return;
+    }
     setIsSubmitting(true);
-    await signUp(email, password);
+    const result = await signUp(email, password);
+    if (result && result.user) {
+      // Create user profile in backend
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: result.user.id,
+          name,
+          age: Number(age)
+        })
+      });
+    }
     setIsSubmitting(false);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    if (!validateEmail(email)) {
+      setFormError('Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      setFormError('Password must be at least 6 characters.');
+      return;
+    }
     setIsSubmitting(true);
     await signIn(email, password);
     setIsSubmitting(false);
@@ -61,7 +107,7 @@ const Auth = () => {
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-7xl font-bold">
                 <span className="primary-gradient bg-clip-text text-transparent">
-                  ChromaFlix
+                  BingeFlix
                 </span>
                 <br />
                 <span className="text-white">Prime</span>
@@ -133,6 +179,9 @@ const Auth = () => {
                           required
                         />
                       </div>
+                      {formError && (
+                        <div className="text-red-500 text-sm text-center">{formError}</div>
+                      )}
                       <Button
                         type="submit"
                         className="w-full"
@@ -172,6 +221,32 @@ const Auth = () => {
                           minLength={6}
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-name">Name</Label>
+                        <Input
+                          id="signup-name"
+                          type="text"
+                          placeholder="Enter your name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-age">Age</Label>
+                        <Input
+                          id="signup-age"
+                          type="number"
+                          placeholder="Enter your age"
+                          value={age}
+                          onChange={(e) => setAge(e.target.value)}
+                          required
+                          min={1}
+                        />
+                      </div>
+                      {formError && (
+                        <div className="text-red-500 text-sm text-center">{formError}</div>
+                      )}
                       <Button
                         type="submit"
                         className="w-full"

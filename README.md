@@ -1,73 +1,66 @@
-# Welcome to your Lovable project
+# BingeFlix
 
-## Project info
+## Getting Started
 
-**URL**: https://lovable.dev/projects/39fa2a80-f366-446f-8ecc-19c63410feb7
+### 1. Clone the repository
 
-## How can I edit this code?
+```
+git clone <repo-url>
+cd chroma-flix-prime
+```
 
-There are several ways of editing your application.
+### 2. Install dependencies
 
-**Use Lovable**
+#### Frontend
+```
+cd chroma-flix-prime
+npm install
+```
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/39fa2a80-f366-446f-8ecc-19c63410feb7) and start prompting.
+#### Backend
+```
+cd server
+npm install
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+### 3. Environment Variables
 
-**Use your preferred IDE**
+Copy `.env.example` to `.env` in both root and `server/` as needed, and fill in the values:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```
+cp .env.example .env
+cd server
+cp ../.env.example .env
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 4. Running the App
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+#### Frontend
+```
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+#### Backend
+```
+cd server
+npm run dev
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 5. Database
 
-**Use GitHub Codespaces**
+- Supabase is used for authentication and data storage.
+- Configure your Supabase project and update the environment variables accordingly.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Project Structure
 
-This project is built with:
+- `src/` - Frontend React app
+- `server/` - Backend API (Node.js/Express)
+- `supabase/` - Database migrations and config
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## Contributing
 
-Simply open [Lovable](https://lovable.dev/projects/39fa2a80-f366-446f-8ecc-19c63410feb7) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+See `CONTRIBUTING.md` for guidelines.

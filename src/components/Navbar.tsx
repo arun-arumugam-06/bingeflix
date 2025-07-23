@@ -33,7 +33,7 @@ const Navbar = () => {
     { label: 'TV Shows', path: '/shows' },
     { label: 'Sports', path: '/sports' },
     { label: 'Live TV', path: '/live' },
-    { label: 'My List', path: '/watchlist' },
+    { label: 'My List', path: '/my-list' },
   ];
 
   const isActivePath = (path: string) => {
@@ -57,9 +57,8 @@ const Navbar = () => {
             <Play className="w-8 h-8 text-primary" />
             <span className="text-xl font-bold">
               <span className="primary-gradient bg-clip-text text-transparent">
-                ChromaFlix
+                BingeFlix
               </span>
-              <span className="text-foreground"> Prime</span>
             </span>
           </Link>
 
@@ -112,17 +111,12 @@ const Navbar = () => {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/profiles" className="cursor-pointer">
+                    <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
-                      Manage Profiles
+                      Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/subscription" className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Subscription
-                    </Link>
-                  </DropdownMenuItem>
+                  {/* Removed Subscription link to prevent 404 */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />

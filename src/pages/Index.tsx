@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import HeroBanner from '@/components/HeroBanner';
 import ContentCard from '@/components/ContentCard';
 import Navbar from '@/components/Navbar';
@@ -32,20 +31,18 @@ const Index = () => {
   }, []);
 
   const fetchContent = async () => {
+    setIsLoadingContent(true);
     try {
-      const { data, error } = await supabase
-        .from('content')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      if (data) {
-        setContent(data);
-        // Set first trending content as featured
-        const featured = data.find(item => item.is_trending) || data[0];
-        setFeaturedContent(featured);
-      }
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/content', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Failed to fetch content');
+      const data = await res.json();
+      setContent(data);
+      // Set first trending content as featured
+      const featured = data.find((item: Content) => item.is_trending) || data[0];
+      setFeaturedContent(featured);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {
@@ -69,16 +66,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
       {/* Hero Banner */}
       {featuredContent && (
         <HeroBanner content={featuredContent} />
       )}
-
       {/* Content Sections */}
       <div className="relative z-10 -mt-32 space-y-12 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
           {/* Continue Watching - Only show for authenticated users */}
           {user && (
             <section className="space-y-6">
@@ -94,7 +88,6 @@ const Index = () => {
               </div>
             </section>
           )}
-
           {/* Trending Now */}
           {trendingContent.length > 0 && (
             <section className="space-y-6">
@@ -110,7 +103,6 @@ const Index = () => {
               </div>
             </section>
           )}
-
           {/* Movies */}
           {moviesContent.length > 0 && (
             <section className="space-y-6">
@@ -125,7 +117,6 @@ const Index = () => {
               </div>
             </section>
           )}
-
           {/* TV Series */}
           {seriesContent.length > 0 && (
             <section className="space-y-6">
@@ -140,7 +131,6 @@ const Index = () => {
               </div>
             </section>
           )}
-
           {/* Live Sports */}
           {liveContent.length > 0 && (
             <section className="space-y-6">
@@ -155,7 +145,6 @@ const Index = () => {
               </div>
             </section>
           )}
-
           {/* Empty State */}
           {content.length === 0 && (
             <div className="text-center py-20">

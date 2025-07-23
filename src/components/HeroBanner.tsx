@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Play, Plus, Info, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 interface HeroContent {
   id: string;
@@ -23,6 +24,7 @@ interface HeroBannerProps {
 export const HeroBanner = ({ content }: HeroBannerProps) => {
   const [isMuted, setIsMuted] = useState(true);
   const [showTrailer, setShowTrailer] = useState(false);
+  const navigate = useNavigate();
 
   // Default content if none provided
   const defaultContent: HeroContent = {
@@ -30,7 +32,7 @@ export const HeroBanner = ({ content }: HeroBannerProps) => {
     title: 'Avatar: The Way of Water',
     description: 'Set more than a decade after the events of the first film, Avatar: The Way of Water begins to tell the story of the Sully family and the challenges they face.',
     backdrop_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1920&h=1080&fit=crop',
-    trailer_url: 'https://demo-video.com/avatar-trailer.mp4',
+    trailer_url: '', // Removed invalid demo video URL
     rating: 8.1,
     language: 'English',
     age_rating: 'UA',
@@ -110,7 +112,7 @@ export const HeroBanner = ({ content }: HeroBannerProps) => {
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
-              <Button size="lg" className="h-12 px-8 text-base font-semibold">
+              <Button size="lg" className="h-12 px-8 text-base font-semibold" onClick={() => navigate(`/watch/${heroContent.id}`)}>
                 <Play className="w-5 h-5 mr-2" fill="currentColor" />
                 Play Now
               </Button>
@@ -119,6 +121,7 @@ export const HeroBanner = ({ content }: HeroBannerProps) => {
                 size="lg" 
                 variant="secondary" 
                 className="h-12 px-8 text-base font-semibold bg-white/20 text-white border-white/30 hover:bg-white/30"
+                // Optionally: add to My List logic here
               >
                 <Plus className="w-5 h-5 mr-2" />
                 My List
@@ -128,6 +131,7 @@ export const HeroBanner = ({ content }: HeroBannerProps) => {
                 size="lg" 
                 variant="ghost" 
                 className="h-12 px-8 text-base font-semibold text-white hover:bg-white/20"
+                onClick={() => navigate(`/watch/${heroContent.id}`)}
               >
                 <Info className="w-5 h-5 mr-2" />
                 More Info
