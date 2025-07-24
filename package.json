@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "render-build": "cd server && npm install && npm run render-build",
+    "render-build": "cd server && npm install && npm run build",
     "start": "cd server && npm run start"
   }
 }
