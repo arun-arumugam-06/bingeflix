@@ -36,6 +36,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Helper to get token
   const getToken = () => localStorage.getItem('token');
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   // Fetch user profile from backend
   const fetchProfile = async () => {
     setLoading(true);
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return;
     }
     try {
-      const res = await fetch('/api/auth/profile', {
+      const res = await fetch(`${baseURL}/api/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -80,7 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${baseURL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -111,7 +113,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${baseURL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

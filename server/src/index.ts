@@ -10,7 +10,13 @@ import myListRoutes from './routes/myList';
 // import { authenticateToken } from './middleware/authMiddleware';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://bingeflix-frontend.vercel.app",  // Replace with actual frontend URL
+    "http://localhost:5173"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;

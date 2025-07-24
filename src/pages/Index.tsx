@@ -25,6 +25,7 @@ const Index = () => {
   const [content, setContent] = useState<Content[]>([]);
   const [featuredContent, setFeaturedContent] = useState<Content | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     fetchContent();
@@ -34,7 +35,7 @@ const Index = () => {
     setIsLoadingContent(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/content', {
+      const res = await fetch(`${baseURL}/api/content`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) throw new Error('Failed to fetch content');
