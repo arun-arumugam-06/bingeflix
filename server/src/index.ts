@@ -25,6 +25,10 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get("/", (req, res) => {
+  res.send("BingeFlix Backend API is running!");
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/my-list', myListRoutes);
